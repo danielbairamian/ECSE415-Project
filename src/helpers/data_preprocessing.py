@@ -7,7 +7,7 @@ import select
 
 importpath   = "../../Dataset/"
 testrainpath = ["Testing", "Training"]
-namespath    = ["/Abed/", "/Daniel/", "/Jules/"] # , "/Lea/", "/Patrick/"]
+namespath    = ["/Abed/", "/Daniel/", "/Jules/", "/Lea/", "/Patrick/"]
 rescaledpath = "Rescaled"
 croppedpath  = "Cropped"
 
