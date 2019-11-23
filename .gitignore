@@ -3,3 +3,4 @@
 Dataset/.DS_Store
 Dataset/Training/.DS_Store
 Dataset/Testing/.DS_Store
+__pycache__
