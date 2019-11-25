@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
-    data = data_loader.get_data(isCropped=False)
+    data = data_loader.get_data(isCropped=True)
 
     X_train = data[0]
     Y_train = data[1]

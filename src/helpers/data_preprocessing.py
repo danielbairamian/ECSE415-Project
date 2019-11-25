@@ -9,7 +9,7 @@ importpath   = "../../Dataset/"
 testrainpath = ["Testing", "Training"]
 namespath    = ["/Abed/", "/Daniel/", "/Jules/", "/Lea/", "/Patrick/"]
 rescaledpath = "Rescaled"
-croppedpath  = "Cropped"
+croppedpath  = "BoxCropped"
 
 ViolaJonesXML = "haarcascade_frontalface_default.xml"
 
@@ -48,6 +48,7 @@ def crop_image_helper(x, y, w, h, img_rgb):
         # control movement of box
         user_input = cv2.waitKey(0)
         if user_input == ord('q'):
+            img_rgb = img_rgb_clean[y:y + h, x:x + w]
             break
         elif user_input == ord('w'):
             y -= 8
@@ -72,8 +73,44 @@ def crop_image_helper(x, y, w, h, img_rgb):
 
     return img_rgb
 
-
 def crop_images():
+
+    # get all folders
+    for ttpath in testrainpath:
+        # get all names
+        for npath in namespath:
+
+            # set the source folder
+            imagefolder  = importpath + ttpath + rescaledpath + npath
+            # set the target folder
+            targetfolder = importpath + ttpath + croppedpath  + npath
+
+            # get all images from the folder
+            for imgname in os.listdir(imagefolder):
+                img      = cv2.imread(imagefolder + imgname)
+                img_rgb  = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+                # Need to tweak these values
+                faces_detected = face_cascade.detectMultiScale(img_gray, scaleFactor=1.01, minNeighbors=10,minSize=(64, 64))
+
+                # if we didn't find any faces
+                if len(faces_detected) == 0:
+                    x = 128
+                    y = 128
+                    w = 64
+                    h = 64
+
+                    img_rgb = crop_image_helper(x, y, w, h, img_rgb)
+                # if we did find at least one face
+                else:
+                    for (x, y, w, h) in faces_detected:
+                        img_rgb = crop_image_helper(x, y, w, h, img_rgb)
+                        # we know we only have 1 face, break
+                        break
+                cv2.imwrite(targetfolder+imgname, cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR))
+
+def crop_images_no_box():
 
     # get all folders
     for ttpath in testrainpath:
@@ -113,4 +150,5 @@ def crop_images():
 
 if __name__ == "__main__":
     #resize_images()
-    crop_images()
+    #crop_images()
+    crop_images_no_box()
