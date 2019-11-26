@@ -1,4 +1,5 @@
 from src.helpers import data_loader
+from src.helpers import data_preprocessing
 import cv2
 import numpy as np
 import copy
@@ -80,6 +81,9 @@ if __name__ == "__main__":
     X_test  = data[2]
     Y_test  = data[3]
     metadata= data[4]
+
+    X_train = data_preprocessing.normalize_img_size(X_train)
+    X_test  = data_preprocessing.normalize_img_size(X_test)
 
     # flatten and convert images to grayscale
     X_train_flat = flatten_and_gscale(X_train)
