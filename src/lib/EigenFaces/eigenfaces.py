@@ -39,28 +39,35 @@ def normalize_image(image):
 
     return np.asarray(normalized_img)
 
-def save_top5_eigenfaces(eigenfaces, meanface):
+def save_top5_eigenfaces(eigenfaces, meanface, datacropped, shape):
     for i in range (0, 5):
         plt.figure()
         eigenfacetemp = normalize_image(eigenfaces[i])
-        eigenfacetemp = eigenfacetemp.reshape(256, 256, 3)
+        eigenfacetemp = eigenfacetemp.reshape(shape, shape, 3)
         plt.imshow(eigenfacetemp)
         plt.xticks([])
         plt.yticks([])
-        plt.savefig("EigenFaces/EigenFace"+str(i+1)+".png", transparent=True)
+        if datacropped:
+            plt.savefig("EigenFacesCropped/EigenFace"+str(i+1)+".png", transparent=True)
+        else:
+            plt.savefig("EigenFacesFull/EigenFace"+str(i+1)+".png", transparent=True)
+
         plt.close()
     # also save the mean face
     plt.figure()
     meanfacetemp = normalize_image(meanface)
-    meanfacetemp = meanfacetemp.reshape(256, 256, 3)
+    meanfacetemp = meanfacetemp.reshape(shape, shape, 3)
     plt.imshow(meanfacetemp)
     plt.xticks([])
     plt.yticks([])
-    plt.savefig("EigenFaces/MeanFace.png", transparent=True)
+    if datacropped:
+        plt.savefig("EigenFacesCropped/MeanFace.png", transparent=True)
+    else:
+        plt.savefig("EigenFacesFull/MeanFace.png", transparent=True)
     plt.close()
 
 
-def generate_PCA_Dimensionality_Estimation(data, threshold=0.01, save_files = True):
+def generate_PCA_Dimensionality_Estimation(data, datacropped, threshold=0.01, save_files = True):
 
     pca = PCA(n_components=data.shape[0])
     pca.fit(data)
@@ -80,7 +87,10 @@ def generate_PCA_Dimensionality_Estimation(data, threshold=0.01, save_files = Tr
         plt.plot(np.cumsum(pca.explained_variance_ratio_) / np.sum(pca.explained_variance_ratio_), '.-')
         plt.xlabel('Principal Component')
         plt.ylabel('Explained Variance')
-        plt.savefig('VarianceGraphs/Cumulative-Variance.png')
+        if datacropped:
+            plt.savefig('VarianceGraphsCropped/Cumulative-Variance.png')
+        else:
+            plt.savefig('VarianceGraphsFull/Cumulative-Variance.png')
 
         plt.figure()
         plt.xlabel('Principal Component')
@@ -92,13 +102,16 @@ def generate_PCA_Dimensionality_Estimation(data, threshold=0.01, save_files = Tr
         plt.scatter(idx, cutoff_threshold, color='red')
         plt.text(int(data.shape[0]/2), cutoff_threshold + 0.025,
                  s="PC# " + str(idx) + " | Cuttoff Threshold: " + str(cutoff_threshold * 100) + "%")
-        plt.savefig('VarianceGraphs/Individual-Variance.png')
+        if datacropped:
+            plt.savefig('VarianceGraphsCropped/Individual-Variance.png')
+        else:
+            plt.savefig('VarianceGraphsFull/Individual-Variance.png')
         plt.close()
 
     return idx
 
 
-def project_eigenfaces(image_list, labels, eigenvectors, meanface,  metadata, save_files = True):
+def project_eigenfaces(image_list, labels, eigenvectors, meanface,  metadata, shape, datacropped, save_files = True):
     idx = 1
 
     train_projected = []
@@ -113,14 +126,18 @@ def project_eigenfaces(image_list, labels, eigenvectors, meanface,  metadata, sa
         train_projected.append(output)
 
         reconstruction = normalize_image(reconstruction)
-        reconstruction = reconstruction.reshape(256, 256, 3)
+        reconstruction = reconstruction.reshape(shape, shape, 3)
 
         if save_files:
             plt.figure()
             plt.imshow(reconstruction)
             plt.xticks([])
             plt.yticks([])
-            plt.savefig("EigenTrainProj/" + metadata[label] + "_" + str(idx) + ".png", transparent=True)
+            if datacropped:
+                plt.savefig("EigenTrainProjCropped/" + metadata[label] + "_" + str(idx) + ".png", transparent=True)
+            else:
+                plt.savefig("EigenTrainProjFull/" + metadata[label] + "_" + str(idx) + ".png", transparent=True)
+
             plt.close()
 
         idx += 1
@@ -163,7 +180,7 @@ def classifier_evaluator(YTest, YPred):
 
     return evaluation_metrics
 
-def evaluation_helper(eval_object):
+def evaluation_helper(eval_object, datacropped):
     accuracy = eval_object[0]
     confmat = eval_object[1]
 
@@ -172,30 +189,37 @@ def evaluation_helper(eval_object):
     # display
     plt.figure()
     plt.imshow(confmat)
-    plt.title("Confusion Matrix"), plt.xticks([]), plt.yticks([])
-    plt.savefig("ClassifierResult/ConfusionMatrix.png")
+    plt.title(str(accuracy*100) + "% Accuracy: " + " | Confusion Matrix"), plt.xticks([]), plt.yticks([])
+    if datacropped:
+        plt.savefig("ClassifierResultCropped/ConfusionMatrix.png")
+    else:
+        plt.savefig("ClassifierResultFull/ConfusionMatrix.png")
+
     plt.close()
 
-if __name__ == "__main__":
 
+def EigenFaceClassifier(datacropped):
     # load data
-    data = data_loader.get_data(isCropped=False)
+    data = data_loader.get_data(isCropped=datacropped)
 
     X_train = data[0]
     Y_train = data[1]
-    X_test  = data[2]
-    Y_test  = data[3]
-    metadata= data[4]
+    X_test = data[2]
+    Y_test = data[3]
+    metadata = data[4]
 
-    #X_train = data_preprocessing.normalize_img_size(X_train)
-    #X_test  = data_preprocessing.normalize_img_size(X_test)
+    if datacropped:
+        X_train = data_preprocessing.normalize_img_size(X_train)
+        X_test = data_preprocessing.normalize_img_size(X_test)
+
+    imgshape = X_train.shape[1]
 
     # flatten and convert images to grayscale
     X_train_flat = flatten_and_gscale(X_train)
-    X_test_flat  = flatten_and_gscale(X_test)
+    X_test_flat = flatten_and_gscale(X_test)
 
     # get a dimensionality estimation
-    optimal_dims = generate_PCA_Dimensionality_Estimation(X_train_flat, save_files=True)
+    optimal_dims = generate_PCA_Dimensionality_Estimation(X_train_flat, datacropped, save_files=True)
 
     # run PCA with the optimal number of dimensions
     pca = PCA(n_components=optimal_dims)
@@ -208,22 +232,22 @@ if __name__ == "__main__":
 
     # separate them
     eigenvectors = np.asarray([x[0] for x in eigenvalue_eigenvector])
-    eigenvalues  = np.asarray([x[1] for x in eigenvalue_eigenvector])
+    eigenvalues = np.asarray([x[1] for x in eigenvalue_eigenvector])
 
     # get the mean face
     mean_face = pca.mean_
 
     # save the top 5 eigen faces
     # only uncomment this if we don't want to save the eigenfaces
-    save_top5_eigenfaces(eigenvectors, mean_face)
-
+    save_top5_eigenfaces(eigenvectors, mean_face, datacropped, imgshape)
 
     # transform all training images to eigen space
     eigenImagesTrain = pca.transform(X_train_flat)
 
     # project the train images on the eigen faces to get their representation
     # only use this if we want to save the images again
-    train_projected = project_eigenfaces(eigenImagesTrain, Y_train, eigenvectors, mean_face, metadata, save_files=True)
+    train_projected = project_eigenfaces(eigenImagesTrain, Y_train, eigenvectors,
+                                         mean_face, metadata, imgshape, datacropped, save_files=True)
 
     # transform all testing images to eigen space
     eigenImagesTest = pca.transform(X_test_flat)
@@ -233,4 +257,9 @@ if __name__ == "__main__":
 
     # get the evaluaiton
     evaluation_metrics = classifier_evaluator(Y_test, Y_pred)
-    evaluation_helper(evaluation_metrics)
+    evaluation_helper(evaluation_metrics, datacropped)
+
+if __name__ == "__main__":
+    # Run the EigenFace Classifier for both datasets
+    EigenFaceClassifier(True)
+    EigenFaceClassifier(False)
