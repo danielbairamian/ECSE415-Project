@@ -55,7 +55,7 @@ def generate_PCA_Dimensionality_Estimation(data):
 
     plt.figure()
     plt.plot(np.cumsum(pca.explained_variance_ratio_) / np.sum(pca.explained_variance_ratio_), '.-')
-    plt.xlabel('Number of PCs')
+    plt.xlabel('Principal Component')
     plt.ylabel('Explained Variance')
     plt.savefig('Cumulative-Variance.png')
 
@@ -71,6 +71,8 @@ def generate_PCA_Dimensionality_Estimation(data):
              s="PC# " + str(idx) + " | Cuttoff Threshold: " + str(cutoff_threshold * 100) + "%")
     plt.savefig('Individual-Variance.png')
 
+    return idx
+
 
 if __name__ == "__main__":
 
@@ -82,20 +84,27 @@ if __name__ == "__main__":
     Y_test  = data[3]
     metadata= data[4]
 
-    X_train = data_preprocessing.normalize_img_size(X_train)
-    X_test  = data_preprocessing.normalize_img_size(X_test)
+    #X_train = data_preprocessing.normalize_img_size(X_train)
+    #X_test  = data_preprocessing.normalize_img_size(X_test)
 
     # flatten and convert images to grayscale
     X_train_flat = flatten_and_gscale(X_train)
     X_test_flat  = flatten_and_gscale(X_test)
 
-    generate_PCA_Dimensionality_Estimation(X_train_flat)
+    optimal_dims = generate_PCA_Dimensionality_Estimation(X_train_flat)
 
+   # pca = PCA(n_components=optimal_dims)
+    #pca.fit(data)
 
+    #eigenvalue_eigenvector = list(zip(pca.components_, pca.explained_variance_, pca.explained_variance_ratio_))
+    #eigenvalue_eigenvector.sort(key=lambda x: x[1], reverse=True)
 
-
-
-
+    # print(eigenspaceData.shape)
+    # print(np.shape(eigenspaceData))
+    # print(np.shape(pca.mean_))
+    # print(np.shape(pca.components_))
+    # print(np.shape(pca.explained_variance_))
+    # print(eigenVecs)
 
 
 
