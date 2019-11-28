@@ -148,6 +148,30 @@ def crop_images_no_box():
                 cv2.imwrite(targetfolder+imgname, cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR))
 
 
+# helper to make all cropped images the same size
+# this is so algo's that require images to be the same size to work (PCA for example)
+def normalize_img_size(imglist):
+
+    list_of_uneven_imgs = copy.deepcopy(imglist)
+    samesize_imgs = []
+
+    min_shape = np.inf
+    # get the smallest size image
+    for unevenimg in list_of_uneven_imgs:
+        if unevenimg.shape[0] < min_shape:
+            min_shape = unevenimg.shape[0]
+
+    # save the smallest dimension
+    smallestdim = (min_shape, min_shape)
+
+    # resize all images to the smallest size
+    for unevenimg in list_of_uneven_imgs:
+        unevenimg = cv2.resize(unevenimg, smallestdim)
+        samesize_imgs.append(unevenimg)
+
+    return np.asarray(samesize_imgs)
+
+
 if __name__ == "__main__":
     #resize_images()
     #crop_images()

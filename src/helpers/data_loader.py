@@ -16,7 +16,7 @@ croppedpath  = "Cropped"
 
 meta_data = {0: 'Abed', 1: 'Daniel', 2: 'Jules', 3: 'Lea', 4: 'Patrick'}
 
-def get_data(isCropped=True):
+def get_data(isCropped=True, doshuffle = True):
 
     # Test train data
     X_train = []
@@ -54,14 +54,34 @@ def get_data(isCropped=True):
             X_train.append(img)
             Y_train.append(i)
 
-    # once the data is saved, shuffle it
-    # X_train , Y_train = shuffle(X_train, Y_train)
-    # X_test  , Y_test  = shuffle(X_test, Y_test)
+    # if doshuffle:
+    #     # once the data is saved, shuffle it
+    #     X_train , Y_train = shuffle(X_train, Y_train)
+    #     X_test  , Y_test  = shuffle(X_test, Y_test)
 
     return np.asarray(X_train), np.asarray(Y_train), np.asarray(X_test), np.asarray(Y_test), meta_data
 
 
+def get_all_data():
+    data_full    = get_data(isCropped=False, doshuffle=False)
+    data_cropped = get_data(isCropped=True,  doshuffle=False)
 
+    X_train = data_cropped[0]
+    Y_train = data_cropped[1]
+
+    X_test = data_cropped[2]
+    Y_test = data_cropped[3]
+
+    metadata = data_cropped[4]
+
+    X_train_Full = data_full[0]
+    X_test_Full = data_full[2]
+
+    # once the data is saved, shuffle it
+    X_train, X_train_Full,  Y_train = shuffle(X_train, X_train_Full, Y_train)
+    X_test, X_test_Full, Y_test = shuffle(X_test, X_test_Full,  Y_test)
+
+    return X_train, Y_train, X_test, Y_test, metadata, X_train_Full, X_test_Full
 
 
 
