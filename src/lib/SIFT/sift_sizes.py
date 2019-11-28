@@ -43,14 +43,14 @@ def sift(img):
 if __name__ == '__main__':
 
     # Read in data
-    cropped_data = data_loader.get_data(isCropped=True)
+    cropped_data = data_loader.get_data(isCropped=True, doshuffle=False)
     X_train_cropped = cropped_data[0]
     Y_train_cropped = cropped_data[1]
     X_test_croppped = cropped_data[2]
     Y_test_cropped = cropped_data[3]
     metadata_cropped = cropped_data[4]
 
-    data = data_loader.get_data(isCropped=False)
+    data = data_loader.get_data(isCropped=False, doshuffle=False)
     X_train = data[0]
     Y_train = data[1]
     X_test = data[2]
