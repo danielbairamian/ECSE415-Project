@@ -55,8 +55,8 @@ def get_data(isCropped=True):
             Y_train.append(i)
 
     # once the data is saved, shuffle it
-    X_train , Y_train = shuffle(X_train, Y_train)
-    X_test  , Y_test  = shuffle(X_test, Y_test)
+    # X_train , Y_train = shuffle(X_train, Y_train)
+    # X_test  , Y_test  = shuffle(X_test, Y_test)
 
     return np.asarray(X_train), np.asarray(Y_train), np.asarray(X_test), np.asarray(Y_test), meta_data
 
