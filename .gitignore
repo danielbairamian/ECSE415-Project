@@ -3,4 +3,5 @@
 Dataset/.DS_Store
 Dataset/Training/.DS_Store
 Dataset/Testing/.DS_Store
+src/lib/SIFT/.ipynb_checkpoints/
 __pycache__
