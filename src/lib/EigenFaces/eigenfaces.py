@@ -219,9 +219,6 @@ def EigenFaceClassifier(datacropped):
         X_train = data_preprocessing.normalize_img_size(X_train)
         X_test = data_preprocessing.normalize_img_size(X_test)
 
-    print(X_train.shape)
-    print(X_test.shape)
-
     imgshape = X_train.shape[1]
 
     # flatten and convert images to grayscale
