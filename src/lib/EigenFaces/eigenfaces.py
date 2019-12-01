@@ -208,9 +208,19 @@ def EigenFaceClassifier(datacropped):
     Y_test = data[3]
     metadata = data[4]
 
+    # X_train and X_test minimum size are the same
+    # Ideally want to reshape X_test size with X_train minimum size
+    # but here they happen to be identical. Not a problem for our dataset
+    # but bad practice.
+
+    # We should be doing what we're doing with the FaceTagging with EigenFaces
+    # Which is manually reshape everything to be the same shape of X_train minimum shape
     if datacropped:
         X_train = data_preprocessing.normalize_img_size(X_train)
         X_test = data_preprocessing.normalize_img_size(X_test)
+
+    print(X_train.shape)
+    print(X_test.shape)
 
     imgshape = X_train.shape[1]
 

@@ -13,6 +13,8 @@ testrainpath = ["Testing", "Training"]
 namespath    = ["/Abed/", "/Daniel/", "/Jules/", "/Lea/", "/Patrick/"]
 rescaledpath = "Rescaled"
 croppedpath  = "Cropped"
+GroupTarget  =  "GroupResized/"
+GroupCropped =  "GroupCropped/Group"
 
 meta_data = {0: 'Abed', 1: 'Daniel', 2: 'Jules', 3: 'Lea', 4: 'Patrick'}
 
@@ -82,6 +84,32 @@ def get_all_data():
     X_test, X_test_Full, Y_test = shuffle(X_test, X_test_Full,  Y_test)
 
     return X_train, Y_train, X_test, Y_test, metadata, X_train_Full, X_test_Full
+
+
+def get_group_data():
+
+    path = importpath + GroupTarget
+    writepath = importpath + GroupCropped
+    All_Groups = []
+    for k, imgname in enumerate(os.listdir(path)):
+        Group_k = []
+
+        groupim = cv2.imread(path+imgname)
+        grouprgb = cv2.cvtColor(groupim, cv2.COLOR_BGR2RGB)
+
+        Group_k.append(grouprgb)
+
+        extrapath = str(k+1) + "/"
+        for imgcrop in os.listdir(writepath+extrapath):
+            cropim = cv2.imread(writepath+extrapath+imgcrop)
+            cropimrgb = cv2.cvtColor(cropim, cv2.COLOR_BGR2RGB)
+            Group_k.append(cropimrgb)
+
+        All_Groups.append(Group_k)
+
+    return np.asarray(All_Groups)
+
+
 
 
 

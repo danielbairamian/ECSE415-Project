@@ -10,6 +10,9 @@ testrainpath = ["Testing", "Training"]
 namespath    = ["/Abed/", "/Daniel/", "/Jules/", "/Lea/", "/Patrick/"]
 rescaledpath = "Rescaled"
 croppedpath  = "BoxCropped"
+GroupSource  =  "GroupFull/"
+GroupTarget  =  "GroupResized/"
+GroupCropped =  "GroupCropped/Group"
 
 ViolaJonesXML = "haarcascade_frontalface_default.xml"
 
@@ -17,6 +20,16 @@ resizedim = (256, 256)
 
 
 face_cascade = cv2.CascadeClassifier(importpath+ViolaJonesXML)
+
+
+def resize_group():
+    path = importpath + GroupSource
+    for imgname in os.listdir(path):
+        img = cv2.imread(path+imgname)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, resizedim)
+
+        cv2.imwrite(importpath+GroupTarget+imgname, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
 
 def resize_images():
     # get all folders
@@ -67,7 +80,6 @@ def crop_image_helper(x, y, w, h, img_rgb):
         elif user_input == ord('o'):
             w -= 4
             h -= 4
-
 
         img_rgb = cv2.rectangle(copy.deepcopy(img_rgb_clean), (x, y), (x + w, y + h), (255, 0, 0), 2)
 
@@ -148,6 +160,25 @@ def crop_images_no_box():
                 cv2.imwrite(targetfolder+imgname, cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR))
 
 
+def crop_group_photos():
+    path = importpath + GroupTarget
+    writepath = importpath + GroupCropped
+    for k, imgname in enumerate(os.listdir(path)):
+        img = cv2.imread(path + imgname)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        for i in range (0, 5):
+            extrapath = str(k+1) + "/" + imgname
+            temp_img = copy.deepcopy(img_rgb)
+            x = 128
+            y = 128
+            w = 64
+            h = 64
+
+            temp_img = crop_image_helper(x, y, w, h, temp_img)
+            cv2.imwrite(writepath + extrapath + str(i) + imgname, cv2.cvtColor(temp_img, cv2.COLOR_RGB2BGR))
+
+
 # helper to make all cropped images the same size
 # this is so algo's that require images to be the same size to work (PCA for example)
 def normalize_img_size(imglist):
@@ -175,4 +206,6 @@ def normalize_img_size(imglist):
 if __name__ == "__main__":
     #resize_images()
     #crop_images()
-    crop_images_no_box()
+    #crop_images_no_box()
+    #resize_group()
+    crop_group_photos()
