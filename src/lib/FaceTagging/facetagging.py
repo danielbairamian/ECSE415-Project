@@ -42,8 +42,8 @@ def tag_group_pictures(group_photo, cropped_photos, labels):
         # text variables
         font = cv2.FONT_HERSHEY_PLAIN
         bottomLeftCornerOfText = start_point
-        fontScale = ((w+h))*2 / group_photo.shape[0]
-        fontColor = (0, 0, 0)
+        fontScale = ((w+h))*3 / group_photo.shape[0]
+        fontColor = (0, 255, 0)
         lineType = 1
 
         # put the text and the bounding box on the image
