@@ -55,6 +55,82 @@ def tag_group_pictures(group_photo, cropped_photos, labels):
     # return the final tagged image
     return temp_img_final
 
+# For face tagging, we know each image has each of our 5 training subjects
+# Instead of using regular KNN, we can use this information to limit the classifier
+# to only predict each label one time
+
+# To do so, we iteratively go through our test points,
+# and each time we save the label with lowest overall prediction error
+# this is the "confidence" of the classification
+# and then discard all other classifications
+
+# we then mark the label and the test point that got classified, then rerun again
+# repeat until we don't have unclassified labels
+
+def Iterative_Confidence_Classifier(X_train, Y_train, X_test):
+    # initialize prediction array
+
+    # create a placeholder prediction list
+    final_prediction = np.ones(X_test.shape[0])*(-1)
+    #array that holds the labels that have been used already
+    already_predicted_labels = []
+    # array that holds the indices of the test points that have been classified
+    already_predicted_indices= []
+
+    # for every datapoint
+    for i in range (0, len(X_test)):
+        #print("=================")
+        # initialize our prediction tentative
+        ypred = []
+        # for all datapoints
+        for k in range(0, len(X_test)):
+            # skip the ones already predicted
+            if k in already_predicted_indices:
+                continue
+            # get the test point
+            tp = X_test[k]
+            min_distance = np.inf
+            predclass = -1
+
+            # for all training points
+            for trainpoint, trainlabel in zip(X_train, Y_train):
+                # if the training point holds one of the labels we already used
+                # then we can't use that training point, skip it
+                if trainlabel in already_predicted_labels:
+                    continue
+                # else, try to classify
+                dist = np.linalg.norm(tp - trainpoint)
+                if min_distance > dist:
+                    min_distance = dist
+                    predclass = trainlabel
+            # save the prediction, the distance, and the index
+            ypred.append([predclass, min_distance, k])
+
+        # after all training points have been classified
+        min_label = -1
+        min_val = np.inf
+        min_idx = -1
+
+        # find the training point that got classified with the least error
+        # this classification is our most confident guess
+        for pred in ypred:
+            #print(pred)
+            if pred[1] < min_val:
+                min_label = pred[0]
+                min_val   = pred[1]
+                min_idx   = pred[2]
+
+        # save the label of most confident guess
+        already_predicted_labels.append(min_label)
+
+        # save the index of the testpoint with this classification
+        already_predicted_indices.append(min_idx)
+
+        # save the label to our final prediction list at the correct position
+        final_prediction[min_idx] = min_label
+
+    return final_prediction
+
 def FaceTagging(datacropped=True):
     All_Groups = data_loader.get_group_data()
 
@@ -108,7 +184,9 @@ def FaceTagging(datacropped=True):
         cropped_group_resized = pca.transform(cropped_group_resized)
 
         # run our classifier to get prediction labels
-        ypred_temp = eigenfaces.classify(eigenImagesTrain, Y_train, cropped_group_resized)
+        ypred_temp = Iterative_Confidence_Classifier(eigenImagesTrain, Y_train, cropped_group_resized)
+        #ypred_temp = eigenfaces.classify(eigenImagesTrain, Y_train, cropped_group_resized)
+
         # get the name associated to the labels
         labels_tags = [metadata[x] for x in ypred_temp]
 
