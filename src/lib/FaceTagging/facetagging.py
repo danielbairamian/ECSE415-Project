@@ -152,8 +152,8 @@ def FaceTagging(datacropped=True):
     X_train_flat = eigenfaces.flatten_and_gscale(X_train)
 
     # run PCA with the optimal number of dimensions
-    # We know this #14 is optimal from part 5
-    pca = PCA(n_components=14)
+    # tweaked a bit n components
+    pca = PCA(n_components=12)
     # fit our data
     pca.fit(X_train_flat)
 
